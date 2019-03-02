@@ -1,6 +1,8 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
+import Presensi from './views/Presensi.vue';
+import Rekap from './views/Rekap.vue';
 
 Vue.use(Router);
 
@@ -14,12 +16,15 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      path: '/presensi',
+      name: 'presensi',
+      component: Presensi,
     },
+    {
+      path: '/rekap',
+      name: 'rekap',
+      component: Rekap,
+    },
+
   ],
 });
