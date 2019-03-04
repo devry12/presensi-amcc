@@ -45,10 +45,10 @@ opacity: 0;
     <v-layout row wrap mx-2 my-2 v-if="manual">
       <v-container>
       <v-flex md6>
-        <v-text-field name="kode" label="Kode" id="kode" :value="result"></v-text-field>
+        <v-text-field name="kode" label="Kode" v-model="result" id="kode" :value="result"></v-text-field>
       </v-flex>
       <v-flex md2>
-        <v-btn color="primary" depressed>Ok</v-btn>
+        <v-btn color="primary" @click="pushpresensi()" depressed>Ok</v-btn>
       </v-flex>
     </v-container>
     </v-layout>
@@ -78,11 +78,11 @@ import axios from 'axios';
       QrcodeCapture,
     },
     created:function() {
-      axios.get('https://devry-mytutn.firebaseio.com/.json')
+      axios.get('http://localhost:3000/posts')
     .then(response => {
+
       // JSON responses are automatically parsed.
-      this.presensi = response.data.user
-      console.log(this.presensi);
+      this.presensi = response.data
     })
     .catch(e => {
       this.errors.push(e)
@@ -91,13 +91,13 @@ import axios from 'axios';
     },
     methods: {
       pushpresensi(){
-        axios.post('https://devry-mytutn.firebaseio.com/.json')
-      .then(response => {
-        // JSON responses are automatically parsed.
-        this.presensi = response.data.user
-        console.log(this.presensi);
-      })
-      .catch(e => {
+        axios.post("http://localhost:3000/posts",{
+          kode:this.result,
+          name:"rika",
+          tlp:"3000000"
+        }).then((response) => {
+   this.presensi.push(response.data);
+}).catch(e => {
         this.errors.push(e)
       })
     },
