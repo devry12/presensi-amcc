@@ -56,10 +56,10 @@ opacity: 0;
 
   <v-data-table :headers="headers" :items="presensi"  class="elevation-1" mt-5 >
     <template slot="items"  slot-scope="props">
-      <td>{{ props.item.kode }}</td>
-      <td>{{ props.item.name }}</td>
-      <td>{{ props.item.tlp }}</td>
-      <td>{{ props.item.time }}</td>
+      <td>{{ props.item.id_peserta }}</td>
+      <td>{{ props.item.nama_peserta }}</td>
+      <td>{{ props.item.telepon_peserta }}</td>
+      <td>{{ props.item.jam_hadir }}</td>
     </template>
   </v-data-table>
 
@@ -77,10 +77,16 @@ import axios from 'axios';
       QrcodeDropZone,
       QrcodeCapture,
     },
+    // mounted(){
+    //   console.log('afasf');
+    //   var channel = this.$pusher.subscribe('notif-chennel');
+    //   channel.bind('my-event',function(data){
+    //     console.log("test 1 "+data.kode)
+    //   })
+    // },
     created:function() {
-      axios.get('http://localhost:3000/posts')
+      axios.get('http://localhost:9090/api/v1/presensi')
     .then(response => {
-
       // JSON responses are automatically parsed.
       this.presensi = response.data
     })
@@ -90,19 +96,82 @@ import axios from 'axios';
 
     },
     methods: {
-      pushpresensi(){
-        axios.post("http://localhost:3000/posts",{
+      testpush(){
+        axios.post("http://localhost:90/",{
           kode:this.result,
           name:"rika",
           tlp:"3000000"
         }).then((response) => {
-   this.presensi.push(response.data);
+          console.log(response.data);
+      })
+
+      console.log(result);
+
+        var channel = this.$pusher.subscribe('notif-chennel');
+        channel.bind('my-event',function(data){
+          console.log("test 2 "+data.kode)
+          console.log("test 2 "+data.name)
+          console.log("test 2 "+data.tlp)
+        })
+      },
+      pushpresensi(){
+        var audios = new Audio('../assets/beep.mp3');
+        audios.play();
+        var fd = new FormData();
+        fd.append('id_peserta',this.result)
+        axios.post("http://localhost:9090/api/v1/presensi",fd).then((response) => {
+          if (response.data.message == 'berhasil') {
+            console.log(response);
+          this.presensi.push(response.data)
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+
+          Toast.fire({
+            type: 'success',
+            title: 'Presensi berhasil'
+          })
+          this.result = ""
+        }else if (response.data.message == 'sudah') {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+
+          Toast.fire({
+            type: 'error',
+            title: 'anda sudah presensi'
+          })
+          this.result = ""
+
+        }else if (response.data.message == 'tidakada') {
+          const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+          });
+
+          Toast.fire({
+            type: 'error',
+            title: 'Maaf anda tidak terdaftar sebagai peserta'
+          })
+          this.result = ""
+
+
+        }
 }).catch(e => {
         this.errors.push(e)
       })
     },
     onDecode (result) {
       this.result = result
+      this.pushpresensi()
     },
     logErrors (promise) {
     promise.catch(console.error)
